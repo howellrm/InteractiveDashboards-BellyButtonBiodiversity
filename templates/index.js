@@ -101,6 +101,7 @@ function getOptions() {
     // Use the list of sample names to populate the select options
     Plotly.d3.json('/names', function(error, sampleNames) {
         for (var i = 0; i < sampleNames.length;  i++) {
+            console.log(sampleNames);
             var currentOption = document.createElement('option');
             currentOption.text = sampleNames[i];
             currentOption.value = sampleNames[i]
