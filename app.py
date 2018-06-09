@@ -1,99 +1,3 @@
-# python
-@app.route("/")
-    """Return the dashboard homepage."""
-
-
-@app.route('/names')
-    """List of sample names.
-
-    Returns a list of sample names in the format
-    [
-        "BB_940",
-        "BB_941",
-        "BB_943",
-        "BB_944",
-        "BB_945",
-        "BB_946",
-        "BB_947",
-        ...
-    ]
-
-    """
-```
-```python
-@app.route('/otu')
-    """List of OTU descriptions.
-
-    Returns a list of OTU descriptions in the following format
-
-    [
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Bacteria",
-        "Bacteria",
-        "Bacteria",
-        ...
-    ]
-    """
-```
-```python
-@app.route('/metadata/<sample>')
-    """MetaData for a given sample.
-
-    Args: Sample in the format: `BB_940`
-
-    Returns a json dictionary of sample metadata in the format
-
-    {
-        AGE: 24,
-        BBTYPE: "I",
-        ETHNICITY: "Caucasian",
-        GENDER: "F",
-        LOCATION: "Beaufort/NC",
-        SAMPLEID: 940
-    }
-    """
-```
-```python
-@app.route('/wfreq/<sample>')
-    """Weekly Washing Frequency as a number.
-
-    Args: Sample in the format: `BB_940`
-
-    Returns an integer value for the weekly washing frequency `WFREQ`
-    """
-```
-```python
-@app.route('/samples/<sample>')
-    """OTU IDs and Sample Values for a given sample.
-
-    Sort your Pandas DataFrame (OTU ID and Sample Value)
-    in Descending Order by Sample Value
-
-    Return a list of dictionaries containing sorted lists  for `otu_ids`
-    and `sample_values`
-
-    [
-        {
-            otu_ids: [
-                1166,
-                2858,
-                481,
-                ...
-            ],
-            sample_values: [
-                163,
-                126,
-                113,
-                ...
-            ]
-        }
-    ]
-    """
-
-
-
-#################################################
 # Dependencies
 #################################################
 # Flask (Server)
@@ -107,13 +11,13 @@ from sqlalchemy import create_engine, func, desc,select
 
 import pandas as pd
 import numpy as np
+import os
 
 
-#################################################
 # Database Setup
 #################################################
 engine = create_engine("sqlite:///DataSets/belly_button_biodiversity.sqlite")
-
+print(engine)
 # reflect an existing database into a new model
 Base = automap_base()
 # reflect the tables
@@ -127,11 +31,12 @@ Samples_Metadata= Base.classes.samples_metadata
 # Create our session (link) from Python to the DB
 session = Session(engine)
 
-#################################################
+
 # Flask Setup
 #################################################
 app = Flask(__name__)
-#################################################
+
+
 # Flask Routes
 #################################################
 # Returns the dashboard homepage
@@ -139,7 +44,7 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-#################################################
+
 # Returns a list of sample names
 @app.route('/names')
 def names():
@@ -153,7 +58,6 @@ def names():
     # Return a list of the column names (sample names)
     return jsonify(list(df.columns))
 
-#################################################
 # Returns a list of OTU descriptions 
 @app.route('/otu')
 def otu():
@@ -164,7 +68,7 @@ def otu():
     otu_list = list(np.ravel(results))
     return jsonify(otu_list)
 
-#################################################
+
 # Returns a json dictionary of sample metadata 
 @app.route('/metadata/<sample>')
 def sample_metadata(sample):
@@ -190,7 +94,6 @@ def sample_metadata(sample):
 
     return jsonify(sample_metadata)
 
-#################################################
 # Returns an integer value for the weekly washing frequency `WFREQ`
 @app.route('/wfreq/<sample>')
 def sample_wfreq(sample):
@@ -204,7 +107,7 @@ def sample_wfreq(sample):
     # Return only the first integer value for washing frequency
     return jsonify(int(wfreq[0]))
 
-#################################################
+
 # Return a list of dictionaries containing sorted lists  for `otu_ids`and `sample_values`
 @app.route('/samples/<sample>')
 def samples(sample):
@@ -228,5 +131,7 @@ def samples(sample):
         "sample_values": df[sample].values.tolist()
     }]
     return jsonify(data)
+
+    
 if __name__ == "__main__":
     app.run(debug=True)

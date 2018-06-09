@@ -34,8 +34,10 @@ function buildCharts(sampleData, otuData) {
             colorscale: "Earth",
         }
     }];
+
     var BUBBLE = document.getElementById('bubble');
     Plotly.plot(BUBBLE, bubbleData, bubbleLayout);
+
     // Build Pie Chart
     console.log(sampleData[0]['sample_values'].slice(0, 10))
     var pieData = [{
@@ -122,14 +124,17 @@ init();
 function buildGauge(sample) {
     Plotly.d3.json(`/wfreq/${sample}`, function(error, wfreq) {
         if (error) return console.warn(error);
+
         // Enter the washing frequency between 0 and 180
         var level = wfreq*20;
+        
         // Trig to calc meter point
         var degrees = 180 - level,
             radius = .5;
         var radians = degrees * Math.PI / 180;
         var x = radius * Math.cos(radians);
         var y = radius * Math.sin(radians);
+
         // Path: may have to change to create a better triangle
         var mainPath = 'M -.0 -0.05 L .0 0.05 L ',
             pathX = String(x),
